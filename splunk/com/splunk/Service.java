@@ -24,6 +24,9 @@ import java.net.URLEncoder;
 import java.net.URLStreamHandler;
 import java.util.Map;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSocketFactory;
+
 /**
  * The {@code Service} class represents a Splunk service instance at a given
  * address (host:port), accessed using the {@code http} or {@code https}
@@ -150,6 +153,8 @@ public class Service extends BaseService {
         this.password = (String)args.get("password");
         this.httpsHandler = Args.<URLStreamHandler>get(args, "httpsHandler", null);
         this.servicePath = formatServicePath((String)args.get("servicePath"));
+        this.customSSLSocketFactory = Args.<SSLSocketFactory>get(args, "sslSocketFactory", null);
+        this.customHostnameVerifier = Args.<HostnameVerifier>get(args, "hostnameVerifier", null);
     }
 
     /**
@@ -169,6 +174,8 @@ public class Service extends BaseService {
         this.password = (String)args.get("password");
         this.httpsHandler = Args.<URLStreamHandler>get(args, "httpsHandler", null);
         this.servicePath = formatServicePath((String)args.get("servicePath"));
+        this.customSSLSocketFactory = Args.<SSLSocketFactory>get(args, "sslSocketFactory", null);
+        this.customHostnameVerifier = Args.<HostnameVerifier>get(args, "hostnameVerifier", null);
     }
 
     /**

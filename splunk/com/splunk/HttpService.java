@@ -62,6 +62,12 @@ public class HttpService {
     /** path of the service */
     protected String servicePath = "";
     
+    /** custom ssl socket factory */
+    protected SSLSocketFactory customSSLSocketFactory = null;
+    
+    /** custom host name verifier */
+    protected HostnameVerifier customHostnameVerifier = null;
+    
     private String prefix = null;
 
     static Map<String, String> defaultHeader = new HashMap<String, String>() {{
@@ -232,7 +238,7 @@ public class HttpService {
     public URL getUrl(String path) {
         try {
         	String finalPath = servicePath + path;
-        	if (getScheme() == HTTPS_SCHEME && httpsHandler != null) {
+        	if (getScheme().equals(HTTPS_SCHEME) && httpsHandler != null) {
         		// This branch is not currently covered by unit tests as I 
         		// could not figure out a generic way to get the default
         		// HTTPS handler.
@@ -306,12 +312,15 @@ public class HttpService {
      * @return The socket.
      * @throws IOException
      */
-    Socket open() throws IOException {
-        if (this.scheme.equals("https")) {
-            return SSL_SOCKET_FACTORY.createSocket(this.host, this.port);
-        }
-        return new Socket(this.host, this.port);
-    }
+	Socket open() throws IOException {
+		if (this.scheme.equals("https")) {
+			if (null != customSSLSocketFactory)
+				customSSLSocketFactory.createSocket(this.host, this.port);
+			else
+				SSL_SOCKET_FACTORY.createSocket(this.host, this.port);
+		}
+		return new Socket(this.host, this.port);
+	}
 
     /**
      * Issue an HTTP request against the service using a given path and
@@ -334,8 +343,17 @@ public class HttpService {
             throw new RuntimeException(e.getMessage(), e);
         }
         if(cn instanceof HttpsURLConnection) {
-            ((HttpsURLConnection)cn).setSSLSocketFactory(SSL_SOCKET_FACTORY);
-            ((HttpsURLConnection)cn).setHostnameVerifier(HOSTNAME_VERIFIER);
+        	HttpsURLConnection httpsURLConnection = (HttpsURLConnection)cn;
+        	// fit in the custom ssl factory & host verifier
+        	if (null != customSSLSocketFactory)
+        		httpsURLConnection.setSSLSocketFactory(customSSLSocketFactory);
+        	else
+        		httpsURLConnection.setSSLSocketFactory(SSL_SOCKET_FACTORY);
+        	
+        	if (null != customHostnameVerifier)
+        		httpsURLConnection.setHostnameVerifier(customHostnameVerifier);
+        	else 
+        		httpsURLConnection.setHostnameVerifier(HOSTNAME_VERIFIER);
         }
         cn.setUseCaches(false);
         cn.setAllowUserInteraction(false);

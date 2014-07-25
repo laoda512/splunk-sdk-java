@@ -18,6 +18,9 @@ package com.splunk;
 
 import java.net.URLStreamHandler;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSocketFactory;
+
 /**
  * The {@code ServiceArgs} class contains a collection of arguments that are 
  * used to initialize a Splunk {@code Service} instance.
@@ -155,5 +158,21 @@ public class ServiceArgs extends Args {
      */
     public void setServicePath(String servicePath) {
     	this.put("servicePath", servicePath);
+    }
+    
+    /**
+     * 
+     * @param sslSocketFactory  custom sslSocketFactory
+     */
+    public void setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
+        this.put("sslSocketFactory", sslSocketFactory);
+    }
+    
+    /**
+     * 
+     * @param hostnameVerifier custom hostnameVerifier
+     */
+    public void setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+        this.put("hostnameVerifier", hostnameVerifier);
     }
 }
