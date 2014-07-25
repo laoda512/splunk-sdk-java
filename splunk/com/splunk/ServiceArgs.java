@@ -148,4 +148,12 @@ public class ServiceArgs extends Args {
     public void setUsername(String username) {
         this.put("username", username);
     }
+    
+    /**
+     * 
+     * @param servicePath The path of splunkd endpoint
+     */
+    public void setServicePath(String servicePath) {
+    	this.put("servicePath", servicePath);
+    }
 }

@@ -58,7 +58,10 @@ public class HttpService {
 
     /** The port number of the service. */
     protected int port = 8089;
-
+    
+    /** path of the service */
+    protected String servicePath = "";
+    
     private String prefix = null;
 
     static Map<String, String> defaultHeader = new HashMap<String, String>() {{
@@ -121,7 +124,34 @@ public class HttpService {
         this.scheme = scheme;
         this.httpsHandler = httpsHandler;
     }
-
+    
+    /**
+     * 
+     * @param host The host name of the service.
+     * @param port port The port number of the service.
+     * @param scheme scheme Scheme for accessing the service ({@code http} or
+     * @param path path of the service
+     * @param httpsHandler 
+     */
+    public HttpService(String host, int port, String scheme, String servicePath,
+            URLStreamHandler httpsHandler) {
+        this.host = host;
+        this.port = port;
+        this.scheme = scheme;
+        this.servicePath = formatServicePath(servicePath);
+        this.httpsHandler = httpsHandler;
+    }
+    
+    protected String formatServicePath(String servicePath) {
+        if (null == servicePath)
+            return "";
+        if (!servicePath.startsWith("/"))
+            servicePath = "/" + servicePath;
+        if (servicePath.endsWith("/"))
+            servicePath = servicePath.substring(0, servicePath.length() - 1);
+        return servicePath;
+    }
+    
     // Returns the count of arguments in the given {@code args} map.
     private static int count(Map<String, Object> args) {
         if (args == null) return 0;
@@ -201,14 +231,15 @@ public class HttpService {
      */
     public URL getUrl(String path) {
         try {
+        	String finalPath = servicePath + path;
         	if (getScheme() == HTTPS_SCHEME && httpsHandler != null) {
         		// This branch is not currently covered by unit tests as I 
         		// could not figure out a generic way to get the default
         		// HTTPS handler.
-        		return new URL(getScheme(), getHost(), getPort(), path, 
+        		return new URL(getScheme(), getHost(), getPort(), finalPath, 
         				httpsHandler);
         	} else {
-        		return new URL(getScheme(), getHost(), getPort(), path);
+        		return new URL(getScheme(), getHost(), getPort(), finalPath);
         	}
         }
         catch (MalformedURLException e) {
