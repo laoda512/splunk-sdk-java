@@ -145,7 +145,7 @@ public abstract class Resource {
      * state.
      * @return The current {@code Resource} instance.
      */
-    Resource load(AtomObject value) {
+    public Resource load(AtomObject value) {
         if (value == null) {
             this.title = "title";
         }

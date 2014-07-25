@@ -351,7 +351,7 @@ public class Entity extends Resource implements Map<String, Object> {
     }
 
     @Override
-    Entity load(AtomObject value) {
+    public Entity load(AtomObject value) {
         super.load(value);
         AtomEntry entry = (AtomEntry)value;
         if (entry == null) {

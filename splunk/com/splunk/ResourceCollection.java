@@ -112,7 +112,7 @@ public class ResourceCollection<T extends Resource>
      * @param namespace The namespace.
      * @return The new member.
      */
-    protected T createItem(Class itemClass, String path, Args namespace) {
+    protected T createItem(Class itemClass, String path, Args namespace, AtomEntry entry) {
         Constructor constructor;
         try {
             constructor = itemClass.getDeclaredConstructor(itemSig);
@@ -132,6 +132,9 @@ public class ResourceCollection<T extends Resource>
                     break;
             //}
             }
+            
+            // load the atom entry
+            item.load(entry);
         }
         catch (IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -158,7 +161,7 @@ public class ResourceCollection<T extends Resource>
      * @return The new member.
      */
     protected T createItem(AtomEntry entry) {
-        return createItem(itemClass, itemPath(entry), namespace(entry));
+        return createItem(itemClass, itemPath(entry), namespace(entry), entry);
     }
 
     /** {@inheritDoc} */
