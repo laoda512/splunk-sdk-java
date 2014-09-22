@@ -155,6 +155,7 @@ public class Service extends BaseService {
         this.servicePath = formatServicePath((String)args.get("servicePath"));
         this.customSSLSocketFactory = Args.<SSLSocketFactory>get(args, "sslSocketFactory", null);
         this.customHostnameVerifier = Args.<HostnameVerifier>get(args, "hostnameVerifier", null);
+        this.customHeaders = Args.<Map<String,String>>get(args, "customHeaders", null);
     }
 
     /**
@@ -176,6 +177,7 @@ public class Service extends BaseService {
         this.servicePath = formatServicePath((String)args.get("servicePath"));
         this.customSSLSocketFactory = Args.<SSLSocketFactory>get(args, "sslSocketFactory", null);
         this.customHostnameVerifier = Args.<HostnameVerifier>get(args, "hostnameVerifier", null);
+        this.customHeaders = Args.<Map<String,String>>get(args, "customHeaders", null);
     }
 
     /**

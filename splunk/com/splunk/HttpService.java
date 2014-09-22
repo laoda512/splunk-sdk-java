@@ -68,6 +68,9 @@ public class HttpService {
     /** custom host name verifier */
     protected HostnameVerifier customHostnameVerifier = null;
     
+    /** custom http headers */
+    protected Map<String,String> customHeaders = null;
+    
     private String prefix = null;
 
     static Map<String, String> defaultHeader = new HashMap<String, String>() {{
@@ -378,6 +381,15 @@ public class HttpService {
             if (header.containsKey(key)) continue;
             cn.setRequestProperty(key, entry.getValue());
         }
+        
+		// Add custom headers
+		if (null != this.customHeaders) {
+			for (Entry<String, String> entry : this.customHeaders.entrySet()) {
+				String key = entry.getKey();
+				if (header.containsKey(key)) continue;
+				cn.setRequestProperty(key, entry.getValue());
+			}
+		}
 
         // Write out request content, if any
         try {

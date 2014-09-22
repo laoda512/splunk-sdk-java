@@ -17,6 +17,7 @@
 package com.splunk;
 
 import java.net.URLStreamHandler;
+import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
@@ -174,5 +175,13 @@ public class ServiceArgs extends Args {
      */
     public void setHostnameVerifier(HostnameVerifier hostnameVerifier) {
         this.put("hostnameVerifier", hostnameVerifier);
+    }
+    
+    /**
+     * 
+     * @param headers custom http headers
+     */
+    public void setCustomHeaders(Map<String,String> headers) {
+        this.put("customHeaders", headers);
     }
 }
