@@ -16,6 +16,8 @@
 
 package com.splunk;
 
+import java.util.Map;
+
 /**
  * The {@code EntityMetadata} class provides access to the metadata properties
  * of a corresponding entity. Use {@code Entity.getMetadata} to obtain an 
@@ -118,7 +120,14 @@ public class EntityMetadata {
      * @return This entity's permissions map.
      */
     public Record getPermissions() {
-        return getEaiAcl().getValue("perms", null);
+    	Object premissions = getEaiAcl().getValue("perms", null);
+    	if(premissions!=null&&!(premissions instanceof Record)){
+    		Record record=new Record();
+    		record.putAll((Map<String, Object>)premissions);
+    		getEaiAcl().put("perms",record);
+    		premissions=record;
+    	}
+        return (Record) premissions;
     }
 
     /**

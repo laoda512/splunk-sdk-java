@@ -40,7 +40,8 @@ public class HttpException extends RuntimeException {
      * @param response The HTTP response that returned an error code.
      * @return A new {@code HttpException) instance.
      */
-    static HttpException create(ResponseMessage response) {
+    //TODO: param httpserivce 
+    static HttpException create(ResponseMessage response,HttpService httpService) {
         int status = response.getStatus();
 
         StringBuilder s = new StringBuilder();
@@ -63,20 +64,29 @@ public class HttpException extends RuntimeException {
             s.appendCodePoint(c);
         }
 
-        String detail = "";
+        String detail = s.toString();
         try {
             // Attempt to read the error detail from the error response content as XML
-            Document document = Xml.parse(new ByteArrayInputStream(detail.getBytes()));
-            NodeList msgs = document.getElementsByTagName("msg");
-            if (msgs.getLength() > 0)
-                detail = msgs.item(0).getTextContent();
-        }
-        catch (Exception e) {
+          
+            
+            if(httpService.isJsonOutputMode()){
+            	  Document document = Xml.parse(new ByteArrayInputStream(detail.getBytes()));
+                  NodeList msgs = document.getElementsByTagName("msg");
+                  if (msgs.getLength() > 0)
+                      detail = msgs.item(0).getTextContent();
+           }else{
+        	   Document document = Xml.parse(new ByteArrayInputStream(detail.getBytes()));
+               NodeList msgs = document.getElementsByTagName("msg");
+               if (msgs.getLength() > 0)
+                   detail = msgs.item(0).getTextContent();
+           }
+            
+        } catch (Exception e) {
             // Not an XML document; return the raw string.
             detail = s.toString();
         }
 
-        String message = String.format("HTTP %d", status);  
+        String message = String.format("HTTP %d", status);
 
         if (detail != null && detail.length() > 0)
             message = message + " -- " + detail;

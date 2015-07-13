@@ -478,7 +478,7 @@ public class PivotSpecification {
         );
 
         if (response.getStatus() != 200) {
-            throw HttpException.create(response);
+            throw HttpException.create(response,service);
         } else {
             return Pivot.parseStream(service, response.getContent());
         }

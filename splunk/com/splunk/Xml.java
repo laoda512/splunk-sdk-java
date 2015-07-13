@@ -16,34 +16,56 @@
 
 package com.splunk;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
+
+import com.google.gson.Gson;
 
 /**
  * The {@code Xml} class represents a collection of XML utilities.
  */
 public class Xml {
 
-    /**
-     * Parses the given input stream and returns it as an XML document object
-     * model (DOM).
-     *
-     * @param input The {@code InputStream} to parse.
-     * @return The XML DOM.
-     */
-    public static Document parse(InputStream input) {
-        try {
-            DocumentBuilderFactory factory =
-                DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(false);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            return builder.parse(input);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-}
+	/**
+	 * Parses the given input stream and returns it as an XML document object
+	 * model (DOM).
+	 * 
+	 * @param input
+	 *            The {@code InputStream} to parse.
+	 * @return The XML DOM.
+	 */
+	public static Document parse(InputStream input) {
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory
+					.newInstance();
+			factory.setNamespaceAware(false);
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			return builder.parse(input);
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
 
+	public static Map<String, Object> parseJson(InputStream input) {
+		try {
+
+			Gson reader = new Gson();
+			Map<String, Object> expectedData = reader .fromJson(new InputStreamReader(input)
+					, Map.class);
+			return expectedData;
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+
+	
+
+}

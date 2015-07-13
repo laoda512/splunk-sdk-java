@@ -17,10 +17,15 @@
 package com.splunk;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamConstants;
+
+import com.google.gson.Gson;
+import com.splunk.HttpService.OutputMode;
 
 /**
  * The {@code AtomFeed} class represents an Atom feed.
@@ -48,25 +53,60 @@ public class AtomFeed extends AtomObject {
     }
 
     /**
-     * Creates a new {@code AtomFeed} instance based on the given stream.
-     *
-     * @param input The input stream.
-     * @return An {@code AtomFeed} instance representing the parsed stream.
-     */
-    public static AtomFeed parseStream(InputStream input) {
-        XMLStreamReader reader = createReader(input);
+	 * Creates a new {@code AtomFeed} instance based on the given stream. The
+	 * format of Stream can be xml or json
+	 * 
+	 * @param input
+	 *            The input stream.
+	 * @param outputMode
+	 *            The {@code OutputMode}.
+	 * @return An {@code AtomFeed} instance representing the parsed stream.
+	 */
+	public static AtomFeed parseStream(InputStream input, OutputMode outputMode) {
 
-        AtomFeed result = AtomFeed.parse(reader);
+		if (outputMode == OutputMode.JSON) {
+			return parseStreamJSON(input);
+		} else {
+			return parseStreamXML(input);
+		}
+	}
+	
+	/**
+	 * Creates a new {@code AtomFeed} instance based on the given XML stream.
+	 * 
+	 * @param input
+	 *            The input stream.
+	 * @return An {@code AtomFeed} instance representing the parsed stream.
+	 */
+	public static AtomFeed parseStream(InputStream input) {
+		return parseStream(input, OutputMode.XML);
+	}
 
-        try {
-            reader.close();
-        }
-        catch (XMLStreamException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+	private static AtomFeed parseStreamJSON(InputStream input) {
+		try {
+			Gson gson = new Gson();
+			String data = StringUtil.streamToString(input);
+			Map<String, Object> expectedData = gson.fromJson(data, Map.class);
+			AtomFeed jsonResult = AtomFeed.parse(expectedData);
+			return jsonResult;
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
 
-        return result;
-    }
+	private static AtomFeed parseStreamXML(InputStream input) {
+		XMLStreamReader reader = createReader(input);
+
+		AtomFeed result = AtomFeed.parse(reader);
+
+		try {
+			reader.close();
+		} catch (XMLStreamException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+
+		return result;
+	}
 
     /**
      * Creates a new {@code AtomFeed} instance based on a given XML element.
@@ -76,6 +116,12 @@ public class AtomFeed extends AtomObject {
      * @throws RuntimeException The runtime exception if a parse error occurs.
      */
     static AtomFeed parse(XMLStreamReader input) {
+        AtomFeed feed = AtomFeed.create();
+        feed.load(input, "feed");
+        return feed;
+    }
+    
+    static AtomFeed parse(Map<String, Object> input) {
         AtomFeed feed = AtomFeed.create();
         feed.load(input, "feed");
         return feed;
@@ -106,10 +152,39 @@ public class AtomFeed extends AtomObject {
         }
         else if (name.equals("startIndex")) {
             this.startIndex = parseText(reader);
-        }
+        }  
         else {
             super.init(reader);
         }
+    }
+    
+    @Override
+    void init(Map<String, Object> reader, String name) {
+    	 if (name.equals("entry")) {
+    		 List<Map<String, Object>> entryList = (List<Map<String, Object>>) reader.get(name);
+    		 for(Map<String, Object> map:entryList){
+    			 AtomEntry entry=AtomEntry.parse(map);
+    			 this.entries.add(entry);
+    		 }
+         }
+         else if (name.equals("messages")) {
+        	 //:TODO comment do nothing
+         }
+         else if (name.equals("totalResults")) {
+             this.totalResults = parseText(reader,name);
+         }
+         else if (name.equals("itemsPerPage")) {
+             //TODO: paging.
+             this.itemsPerPage = parseText(reader,name);
+         }
+         else if (name.equals("startIndex")) {
+             this.startIndex = parseText(reader,name);
+         }else if (name.equals("origin")) {//json.origin==xml.id??
+             this.id = parseText(reader,name);
+         }else {
+             super.init(reader,name);
+         }
+    	//super.init(reader, name);
     }
 }
 

@@ -121,7 +121,7 @@ public class DataModel extends Entity {
     }
 
     @Override
-    Entity load(AtomObject value) {
+    public Entity load(AtomObject value) {
         Entity result = super.load(value);
         // After loading the Atom entity as we would for any other Splunk entity,
         // we have to parse the JSON description of the data model and its acceleration

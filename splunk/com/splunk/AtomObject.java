@@ -18,12 +18,16 @@ package com.splunk;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamConstants;
+
 
 /**
  * The {@code AtomObject} class represents a generic Atom object. This class is
@@ -75,6 +79,33 @@ public class AtomObject {
     }
 
     /**
+     * Initialize a property of the current instance based on the given JSON
+     * element.
+     *
+     * @param reader The JOXML reader.
+     */
+     //TODO: param name.
+    void init(Map<String, Object> reader,String name) {
+
+
+        if (name.equals("id")) {//TODO: json.origin==xml.id?? move to entry
+            this.id = parseText(reader,name);
+        }
+        else if (name.equals("links")) {
+        	Map<String, String> links = (Map<String, String>) reader.get(name);
+            this.links.putAll(links);
+       //     parseEnd(reader);
+        }
+        else if (name.equals("title")) {
+            this.title = parseText(reader,name);
+        }
+        else if (name.equals("updated")) {
+            this.updated = parseText(reader,name);
+        }
+        
+    }
+
+    /**
      * Initialize a property of the current instance based on the given XML
      * element.
      *
@@ -105,6 +136,20 @@ public class AtomObject {
         }
     }
 
+    /**
+     * Initializes the current instance from the given XML element by calling
+     * the {@code init} method on each child of the XML element.
+     *
+     * @param reader The XML reader.
+     */
+    void load(Map<String, Object>  reader, String localName) {
+    		Set<String>key = reader.keySet();
+    		for(String s:key){
+    			 init(reader,s);
+    		}
+           
+    }
+    
     /**
      * Initializes the current instance from the given XML element by calling
      * the {@code init} method on each child of the XML element.
@@ -159,11 +204,15 @@ public class AtomObject {
 
         return value;
     }
+    
+    protected String parseText(Map<String, Object> reader,String name) {
+        String value = formatString(reader.get(name));
+        return value;
+    }
 
     //
     // Lexical helpers
     //
-
     protected static String getElementText(XMLStreamReader reader) {
         try {
             return reader.getElementText();
@@ -171,6 +220,10 @@ public class AtomObject {
         catch (XMLStreamException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    protected static String getElementText(Map<String, Object> reader,String name) {
+            return (String) reader.get(name);
     }
 
     protected static boolean
@@ -244,5 +297,65 @@ public class AtomObject {
         String where = location.toString();
         String message = String.format("Syntax error @ %s", where);
         throw new RuntimeException(message);
+    }
+    
+    protected static void syntaxError(Map<String, Object> reader,String name) {
+        String message = String.format("Syntax error @ %s, %s", name,reader.get(name));
+        throw new RuntimeException(message);
+    }
+    
+    public void removeNUll(Map<String, Object> map){
+    	Set<String>keySet = map.keySet();
+    	Set<String>keyNullSet=new HashSet<String>();
+    	for(String key:keySet){
+    		Object obj=map.get(key);
+    		if(obj==null){
+    			keyNullSet.add(key);
+    			continue;
+    		}
+    		if(obj instanceof String&&StringUtil.isEmpty((String) obj)){
+    			keyNullSet.add(key);
+    			continue;
+    		}
+    		
+    		if(obj instanceof Float){
+    			obj=((Float)obj).intValue()+"";
+    		}
+    		if(obj instanceof Double){
+    			obj=((Double)obj).intValue()+"";
+    		}
+    		if(obj instanceof Long){
+    			obj=obj+"";
+    		}
+    		if(obj instanceof Boolean){
+    			obj=(Boolean)obj==false?"0":"1";
+    		}
+    		map.put(key, obj);
+    		
+    	}
+    	for(String key:keyNullSet){
+    		map.remove(key);
+    	}
+    	
+    }
+    
+    public String formatString(Object s){
+    	if(s==null) return null;
+    	if(s instanceof String){
+    		String resultString= (String) s;
+    		return StringUtil.isEmpty(resultString)?null:resultString;
+    	}else if(s instanceof Float){
+			s=((Float)s).intValue()+"";
+		}else
+		if(s instanceof Double){
+			s=((Double)s).intValue()+"";
+		}else
+		if(s instanceof Long){
+			s=s+"";
+		}else
+		if(s instanceof Boolean){
+			s=(Boolean)s==false?"0":"1";
+		}
+    	return (String) s;
     }
 }

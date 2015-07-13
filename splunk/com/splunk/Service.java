@@ -1103,15 +1103,20 @@ public class Service extends BaseService {
     public Service login(String username, String password) {
         this.username = username;
         this.password = password;
-
+        
         Args args = new Args();
         args.put("username", username);
         args.put("password", password);
-        ResponseMessage response = post("/services/auth/login", args);
-        String sessionKey = Xml.parse(response.getContent())
-            .getElementsByTagName("sessionKey")
-            .item(0)
-            .getTextContent();
+		ResponseMessage response = post("/services/auth/login", args);
+		String sessionKey;
+		if (isJsonOutputMode()) {
+			sessionKey = (String) Xml.parseJson(response.getContent()).get(
+					"sessionKey");
+		} else {
+			sessionKey = Xml.parse(response.getContent())
+					.getElementsByTagName("sessionKey").item(0)
+					.getTextContent();
+		}
         this.token = "Splunk " + sessionKey;
         this.version = this.getInfo().getVersion();
         if (versionCompare("4.3") >= 0)

@@ -381,7 +381,7 @@ public class Entity extends Resource implements Map<String, Object> {
         assert(response.getStatus() == 200);
         AtomFeed feed;
         try {
-            feed = AtomFeed.parseStream(response.getContent());
+            feed = AtomFeed.parseStream(response.getContent(),service.getOverallOutputMode());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

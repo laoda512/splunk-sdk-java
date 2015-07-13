@@ -80,7 +80,7 @@ public class SavedSearch extends Entity {
     public Job dispatch(Map args) throws InterruptedException {
         ResponseMessage response = service.post(actionPath("dispatch"), args);
         invalidate();
-        String sid = Job.getSid(response);
+        String sid = Job.getSid(response,service.getOverallOutputMode());
 
         Job job;
         JobCollection jobs = service.getJobs();
@@ -115,7 +115,7 @@ public class SavedSearch extends Entity {
         ResponseMessage response = service.get(actionPath("history"));
         AtomFeed feed;
         try {
-            feed = AtomFeed.parseStream(response.getContent());
+            feed = AtomFeed.parseStream(response.getContent(),service.getOverallOutputMode());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

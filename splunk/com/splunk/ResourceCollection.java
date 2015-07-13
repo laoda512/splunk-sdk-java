@@ -330,7 +330,7 @@ public class ResourceCollection<T extends Resource>
 
         AtomFeed feed = null;
         try {
-            feed = AtomFeed.parseStream(response.getContent());
+            feed = AtomFeed.parseStream(response.getContent(),service.getOverallOutputMode());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

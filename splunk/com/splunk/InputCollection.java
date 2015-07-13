@@ -157,7 +157,7 @@ public class InputCollection extends EntityCollection<Input> {
         String path = itemPath(entry);
         InputKind kind = itemKind(path);
         Class inputClass = kind.getInputClass();
-        return createItem(inputClass, path, null);
+        return createItem(inputClass, path, null,entry);
     }
 
     /**
@@ -241,7 +241,7 @@ public class InputCollection extends EntityCollection<Input> {
     private Set<InputKind> assembleInputKindSet(List<String> subPath) {
         Set<InputKind> kinds = new HashSet<InputKind>();
         ResponseMessage response = service.get(this.path + "/" + Util.join("/", subPath));
-        AtomFeed feed = AtomFeed.parseStream(response.getContent());
+        AtomFeed feed = AtomFeed.parseStream(response.getContent(),service.getOverallOutputMode());
         for (AtomEntry entry : feed.entries) {
             String itemKeyName = itemKey(entry);
 
@@ -318,7 +318,7 @@ public class InputCollection extends EntityCollection<Input> {
             }
             AtomFeed feed;
             try {
-                feed = AtomFeed.parseStream(response.getContent());
+                feed = AtomFeed.parseStream(response.getContent(),service.getOverallOutputMode());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

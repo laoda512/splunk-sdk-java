@@ -21,6 +21,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.splunk.HttpService.OutputMode;
+
+
 /**
  * The {@code Job} class represents a job, which is an individual 
  * instance of a running or completed search or report, along with its related
@@ -671,12 +674,16 @@ public class Job extends Entity {
      * @param response The response message.
      * @return This job's SID.
      */
-    static String getSid(ResponseMessage response) {
-        return Xml.parse(response.getContent())
-            .getElementsByTagName("sid")
-            .item(0)
-            .getTextContent();
+    static String getSid(ResponseMessage response,OutputMode outputMode) {
+    	
+		if (outputMode.isJson()) {
+			return (String) Xml.parseJson(response.getContent()).get("sid");
+		} else {
+			return Xml.parse(response.getContent()).getElementsByTagName("sid")
+					.item(0).getTextContent();
+		}
     }
+    	
 
     /**
      * Returns the {@code InputStream} IO handle for the summary for this job.
@@ -895,7 +902,7 @@ public class Job extends Entity {
 
         AtomEntry entry;
         try {
-            entry = AtomEntry.parseStream(response.getContent());
+            entry = AtomEntry.parseStream(response.getContent(),service.getOverallOutputMode());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

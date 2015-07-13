@@ -17,6 +17,8 @@
 package com.splunk;
 
 import com.google.gson.Gson;
+import com.splunk.HttpService.OutputMode;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -54,7 +56,7 @@ public class AtomFeedTest {
     @Test
     public void testAtomFeed() {
         Map<String, Object> expectedMetadata = (Map<String, Object>)expectedFeed.get("metadata");
-        AtomFeed actualFeed = AtomFeed.parseStream(this.xmlStream);
+        AtomFeed actualFeed = AtomFeed.parseStream(this.xmlStream,OutputMode.XML);
 
         assertEquals(expectedMetadata.get("itemsPerPage"), actualFeed.itemsPerPage);
         assertEquals(expectedMetadata.get("startIndex"), actualFeed.startIndex);

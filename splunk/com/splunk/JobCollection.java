@@ -81,10 +81,14 @@ public class JobCollection extends EntityCollection<Job> {
         ResponseMessage response = service.post(path, args);
         assert(response.getStatus() == 201);
 
-        String sid = Xml.parse(response.getContent())
-            .getElementsByTagName("sid")
-            .item(0)
-            .getTextContent();
+        String sid ;
+
+		if (service.isJsonOutputMode()) {
+			sid = (String) Xml.parseJson(response.getContent()).get("sid");
+		} else {
+			sid = Xml.parse(response.getContent()).getElementsByTagName("sid")
+					.item(0).getTextContent();
+		}
 
         Job job = new Job(service, "search/jobs/" + sid);
         job.refresh();
